@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accessible Slot Machine</title>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    .min-h-screen {
+      min-height: 100vh;
+    }
+
+    .bg-purple-900 {
+      background-color: #4c1d95;
+    }
+
+    .text-white {
+      color: white;
+    }
+
+    .flex {
+      display: flex;
+    }
+
+    .items-center {
+      align-items: center;
+    }
+
+    .justify-center {
+      justify-content: center;
+    }
+
+    .justify-between {
+      justify-between: space-between;
+    }
+
+    .bg-purple-800 {
+      background-color: #5b21b6;
+    }
+
+    .bg-purple-700 {
+      background-color: #6d28d9;
+    }
+
+    .bg-purple-500 {
+      background-color: #8b5cf6;
+    }
+
+    .bg-green-500 {
+      background-color: #22c55e;
+    }
+
+    .bg-red-500 {
+      background-color: #ef4444;
+    }
+
+    .bg-green-600:hover {
+      background-color: #16a34a;
+    }
+
+    .bg-red-600:hover {
+      background-color: #dc2626;
+    }
+
+    .bg-white {
+      background-color: white;
+    }
+
+    .p-8 {
+      padding: 2rem;
+    }
+
+    .p-6 {
+      padding: 1.5rem;
+    }
+
+    .p-3 {
+      padding: 0.75rem;
+    }
+
+    .px-6 {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+
+    .py-3 {
+      padding-top: 0.75rem;
+      padding-bottom: 0.75rem;
+    }
+
+    .rounded-xl {
+      border-radius: 0.75rem;
+    }
+
+    .rounded-lg {
+      border-radius: 0.5rem;
+    }
+
+    .rounded-full {
+      border-radius: 9999px;
+    }
+
+    .shadow-2xl {
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    .shadow-inner {
+      box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+    }
+
+    .max-w-md {
+      max-width: 28rem;
+    }
+
+    .w-full {
+      width: 100%;
+    }
+
+    .w-16 {
+      width: 4rem;
+    }
+
+    .h-16 {
+      height: 4rem;
+    }
+
+    .mb-6 {
+      margin-bottom: 1.5rem;
+    }
+
+    .mb-4 {
+      margin-bottom: 1rem;
+    }
+
+    .gap-3 {
+      gap: 0.75rem;
+    }
+
+    .text-2xl {
+      font-size: 1.5rem;
+    }
+
+    .text-3xl {
+      font-size: 1.875rem;
+    }
+
+    .text-xl {
+      font-size: 1.25rem;
+    }
+
+    .text-sm {
+      font-size: 0.875rem;
+    }
+
+    .font-bold {
+      font-weight: 700;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .opacity-80 {
+      opacity: 0.8;
+    }
+
+    .transition-colors {
+      transition-property: background-color, border-color, color, fill, stroke;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      transition-duration: 150ms;
+    }
+
+    .cursor-not-allowed {
+      cursor: not-allowed;
+    }
+
+    button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .reel {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.875rem;
+      background: white;
+      border-radius: 0.5rem;
+      box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+      width: 4rem;
+      height: 4rem;
+    }
+
+    /* Enhanced mute button styles */
+    .mute-button {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .mute-button.muted {
+      background-color: #ef4444;
+    }
+
+    .mute-button.muted:hover {
+      background-color: #dc2626;
+    }
+
+    .mute-button.unmuted {
+      background-color: #22c55e;
+    }
+
+    .mute-button.unmuted:hover {
+      background-color: #16a34a;
+    }
+
+    .mute-button-text {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .mute-button-icon {
+      font-size: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="min-h-screen bg-purple-900 text-white flex items-center justify-center">
+    <div class="bg-purple-800 p-8 rounded-xl shadow-2xl max-w-md w-full">
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">Accessible Slots</h1>
+        <button 
+          id="muteButton" 
+          class="mute-button unmuted"
+          aria-label="Mute"
+        >
+          <span class="mute-button-icon">🔊</span>
+          <span class="mute-button-text">Sound On</span>
+        </button>
+      </div>
+
+      <div class="bg-purple-700 p-6 rounded-lg mb-6 text-center">
+        <div id="reels" class="flex justify-center gap-3 mb-6">
+          <div class="reel" role="img" aria-label="Reel 1: 🎰">🎰</div>
+          <div class="reel" role="img" aria-label="Reel 2: 🎰">🎰</div>
+          <div class="reel" role="img" aria-label="Reel 3: 🎰">🎰</div>
+          <div class="reel" role="img" aria-label="Reel 4: 🎰">🎰</div>
+        </div>
+
+        <div id="credits" class="text-xl mb-4">Credits: 100</div>
+
+        <button
+          id="spinButton"
+          class="w-full py-3 px-6 rounded-lg text-white font-bold transition-colors bg-green-500 hover:bg-green-600"
+          aria-label="Spin the reels"
+        >
+          Spin (10 credits)
+        </button>
+      </div>
+
+      <div class="text-center text-sm opacity-80">
+        Press SPACE to spin • Match 2: 20 credits • Match 3: 50 credits • Match 4: 100 credits
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SYMBOLS = ['🍎', '🍋', '🍒', '💎', '🌟', '7️⃣'];
+    const SPIN_DURATION = 2000;
+    
+    let audioContext = null;
+    let credits = 100;
+    let isSpinning = false;
+    let isMuted = false;
+
+    // DOM Elements
+    const spinButton = document.getElementById('spinButton');
+    const muteButton = document.getElementById('muteButton');
+    const creditsDisplay = document.getElementById('credits');
+    const reelElements = document.querySelectorAll('.reel');
+
+    // Audio Context initialization
+    const initAudio = () => {
+      if (!audioContext) {
+        audioContext = new AudioContext();
+      }
+      return audioContext;
+    };
+
+    // Sound generation utilities
+    const createOscillator = (frequency, duration, type = 'sine', gain = 0.7) => {
+      const ctx = initAudio();
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      
+      oscillator.frequency.value = frequency;
+      oscillator.type = type;
+      
+      gainNode.gain.setValueAtTime(gain, ctx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
+      
+      return { oscillator, gainNode };
+    };
+
+    // Sound effects
+    const playSpinStartSound = () => {
+      if (isMuted) return;
+      const ctx = initAudio();
+      [440, 523, 659].forEach((freq, i) => {
+        setTimeout(() => {
+          const sound = createOscillator(freq, 0.15, 'square', 0.5);
+          sound.oscillator.start();
+          sound.oscillator.stop(ctx.currentTime + 0.15);
+        }, i * 100);
+      });
+    };
+
+    const playReelSpinSound = () => {
+      if (isMuted) return;
+      const sound = createOscillator(220, 0.1, 'sawtooth', 0.3);
+      sound.oscillator.start();
+      sound.oscillator.stop(audioContext.currentTime + 0.1);
+    };
+
+    const playWinSound = (matches) => {
+      if (isMuted) return;
+      const ctx = initAudio();
+      const frequencies = matches === 4 
+        ? [523.25, 659.25, 783.99, 1046.50]
+        : matches === 3
+          ? [440, 554.37, 659.25, 880]
+          : [440, 554.37, 659.25];
+      
+      frequencies.forEach((freq, i) => {
+        setTimeout(() => {
+          const sound = createOscillator(freq, 0.3, 'sine', 0.6);
+          sound.oscillator.start();
+          sound.oscillator.stop(ctx.currentTime + 0.3);
+        }, i * 150);
+      });
+    };
+
+    const playLoseSound = () => {
+      if (isMuted) return;
+      const sound = createOscillator(196, 0.4, 'triangle', 0.5);
+      sound.oscillator.start();
+      sound.oscillator.stop(audioContext.currentTime + 0.4);
+    };
+
+    // Speech synthesis
+    const speak = (text, rate = 1) => {
+      if (isMuted) return;
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = rate;
+      window.speechSynthesis.speak(utterance);
+    };
+
+    // Confetti effect
+    const fireConfetti = (matches) => {
+      const duration = matches === 4 ? 5000 : matches === 3 ? 3000 : 1500;
+      const particleCount = matches === 4 ? 200 : matches === 3 ? 100 : 50;
+
+      const defaults = {
+        startVelocity: 30,
+        spread: 360,
+        ticks: 60,
+        zIndex: 0,
+        particleCount,
+      };
+
+      const fire = (particleRatio, opts) => {
+        confetti({
+          ...defaults,
+          ...opts,
+          origin: { x: Math.random(), y: Math.random() * 0.3 + 0.5 },
+          particleCount: Math.floor(particleCount * particleRatio),
+        });
+      };
+
+      const interval = setInterval(() => {
+        fire(0.25, { spread: 26, startVelocity: 55 });
+        fire(0.2, { spread: 60 });
+        fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+        fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+        fire(0.1, { spread: 120, startVelocity: 45 });
+      }, 250);
+
+      setTimeout(() => clearInterval(interval), duration);
+    };
+
+    // Game logic
+    const calculateWin = (reels) => {
+      const symbolCounts = new Map();
+      reels.forEach(symbol => {
+        symbolCounts.set(symbol, (symbolCounts.get(symbol) || 0) + 1);
+      });
+
+      const maxMatches = Math.max(...symbolCounts.values());
+      
+      switch (maxMatches) {
+        case 4:
+          return {
+            matches: 4,
+            winAmount: 100,
+            message: `Mega Jackpot! Four ${reels[0]} symbols! You won 100 credits!`
+          };
+        case 3:
+          const symbol3 = [...symbolCounts.entries()].find(([_, count]) => count === 3)[0];
+          return {
+            matches: 3,
+            winAmount: 50,
+            message: `Jackpot! Three ${symbol3} symbols! You won 50 credits!`
+          };
+        case 2:
+          const symbol2 = [...symbolCounts.entries()].find(([_, count]) => count === 2)[0];
+          return {
+            matches: 2,
+            winAmount: 20,
+            message: `Nice! Two ${symbol2} symbols! You won 20 credits!`
+          };
+        default:
+          return {
+            matches: 0,
+            winAmount: 0,
+            message: 'Try again!'
+          };
+      }
+    };
+
+    const updateReels = (symbols) => {
+      reelElements.forEach((reel, index) => {
+        reel.textContent = symbols[index];
+        reel.setAttribute('aria-label', `Reel ${index + 1}: ${symbols[index]}`);
+      });
+    };
+
+    const spin = () => {
+      if (isSpinning || credits < 10) return;
+      
+      credits -= 10;
+      creditsDisplay.textContent = `Credits: ${credits}`;
+      isSpinning = true;
+      spinButton.textContent = 'Spinning...';
+      spinButton.disabled = true;
+      
+      speak('Spinning the reels');
+      playSpinStartSound();
+
+      let reelSoundTimer;
+      const spinInterval = setInterval(() => {
+        const randomSymbols = Array(4).fill(0).map(() => 
+          SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]
+        );
+        updateReels(randomSymbols);
+        
+        clearTimeout(reelSoundTimer);
+        reelSoundTimer = setTimeout(playReelSpinSound, 0);
+      }, 100);
+
+      setTimeout(() => {
+        clearInterval(spinInterval);
+        clearTimeout(reelSoundTimer);
+        
+        const finalReels = Array(4).fill(0).map(() => 
+          SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]
+        );
+        updateReels(finalReels);
+        
+        const result = calculateWin(finalReels);
+        
+        if (result.winAmount > 0) {
+          credits += result.winAmount;
+          playWinSound(result.matches);
+          speak(result.message);
+          fireConfetti(result.matches);
+        } else {
+          playLoseSound();
+          speak(result.message);
+        }
+        
+        creditsDisplay.textContent = `Credits: ${credits}`;
+        isSpinning = false;
+        spinButton.textContent = 'Spin (10 credits)';
+        spinButton.disabled = credits < 10;
+      }, SPIN_DURATION);
+    };
+
+    // Event listeners
+    spinButton.addEventListener('click', spin);
+    
+    muteButton.addEventListener('click', () => {
+      isMuted = !isMuted;
+      muteButton.classList.toggle('muted', isMuted);
+      muteButton.classList.toggle('unmuted', !isMuted);
+      
+      const icon = isMuted ? '🔈' : '🔊';
+      const text = isMuted ? 'Sound Off' : 'Sound On';
+      
+      muteButton.innerHTML = `
+        <span class="mute-button-icon">${icon}</span>
+        <span class="mute-button-text">${text}</span>
+      `;
+      
+      muteButton.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute');
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        spin();
+      }
+    });
+
+    // Welcome message
+    speak('Welcome to the Accessible Slot Machine! Press Space or click Spin to play. Each spin costs 10 credits. Match two symbols to win 20 credits, three symbols for 50 credits, or four symbols for 100 credits!');
+  </script>
+</body>
+</html>
